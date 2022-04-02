@@ -15,6 +15,9 @@ gem "pg", "~> 1.1"
 # PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search
 gem 'pg_search', '~> 2.3', '>= 2.3.6'
 
+# With ActsAsTaggableOn, you can tag a single model on several contexts, such as skills, interests, and awards. It also provides other advanced functionality.
+gem 'acts-as-taggable-on', '~> 9.0', '>= 9.0.1'
+
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", "~> 5.0"
 

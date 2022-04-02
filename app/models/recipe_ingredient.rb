@@ -29,7 +29,7 @@ class RecipeIngredient < ApplicationRecord
   def self.parse_definition(definition)
     return {} if definition.blank?
     get_def_regex.match(definition).named_captures.yield_self do |t|
-      {**t, unit: t['unit'].singularize}
+      {**t, unit: t['unit'].present? ? t['unit'].singularize : nil}
     end
   end
 
@@ -37,7 +37,7 @@ class RecipeIngredient < ApplicationRecord
     return if full_definition.blank?
     auto_attrs = RecipeIngredient.parse_definition(full_definition)
     ingredient_name = auto_attrs.delete("name")
-    self.ingredient = Ingredient.new({name: ingredient_name}) if ingredient_name.present?
+    self.ingredient = Ingredient.find_or_initialize_by({name: ingredient_name}) if ingredient_name.present?
     assign_attributes(auto_attrs)
   end
 end

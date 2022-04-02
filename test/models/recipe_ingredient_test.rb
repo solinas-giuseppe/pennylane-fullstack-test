@@ -47,8 +47,16 @@ class RecipeIngredientTest < ActiveSupport::TestCase
   end
 
   test "it initializes an ingredient when initialized" do
+    recipe_ingredient = RecipeIngredient.new(recipe: @recipe, full_definition: @full_definitions[12])
+    assert_not_nil recipe_ingredient.ingredient
+    assert_equal "baking powder", recipe_ingredient.ingredient.name
+    assert_nil recipe_ingredient.ingredient.id
+  end
+
+  test "it finds the ingredient when it's persisted" do
     recipe_ingredient = RecipeIngredient.new(recipe: @recipe, full_definition: @full_definitions[0])
     assert_not_nil recipe_ingredient.ingredient
     assert_equal "all-purpose flour", recipe_ingredient.ingredient.name
+    assert_not_nil recipe_ingredient.ingredient.id
   end
 end
