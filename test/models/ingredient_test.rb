@@ -12,4 +12,9 @@ class IngredientTest < ActiveSupport::TestCase
     ingredient = ingredients(:all_purpose_flour)
     assert_not_nil ingredient.searchable
   end
+
+  test "it can be full-text searched" do
+    searched = Ingredient.search_name('flour')
+    assert_not_equal 0, searched.count
+  end
 end
