@@ -1,0 +1,47 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the "{}" from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+one: 
+  title: Golden Sweet Cornbread
+  cook_time: 25
+  prep_time: 10
+  # ingredients:
+  # - 1 cup all-purpose flour
+  # - 1 cup yellow cornmeal
+  # - \"⅔ cup white sugar\"
+  # - 1 teaspoon salt
+  # - 3 ½ teaspoons baking powder
+  # - 1 egg
+  # - 1 cup milk
+  # - \"⅓ cup vegetable oil\"
+  ratings: 4.74
+  # cuisine: ''
+  # category: Cornbread
+  # author: bluegirl
+  image: https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F43%2F2021%2F10%2F26%2Fcornbread-1.jpg
+two:
+  title: Fluffy Cake Doughnuts
+  cook_time: 10
+  prep_time: 20
+  # ingredients:
+  # - 2 cups all-purpose flour
+  # - \"¾ cup white sugar\"
+  # - 2 teaspoons baking powder
+  # - \"¼ teaspoon ground nutmeg\"
+  # - \"¼ teaspoon ground cinnamon\"
+  # - 1 teaspoon salt
+  # - \"¾ cup milk\"
+  # - 2 eggs, beaten
+  # - 1 teaspoon vanilla extract
+  # - 1 tablespoon shortening
+  # - 1 cup confectioners' sugar
+  # - 2 tablespoons hot water
+  # - \"½ teaspoon almond extract\"
+  ratings: 3.98
+  # cuisine: ''
+  # category: Quick Bread
+  # author: SYNEVA B
+  image: https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fimages.media-allrecipes.com%2Fuserphotos%2F1536786.jpg
