@@ -84,5 +84,5 @@ test:
 production:
   <<: *default
   database: pennylane_fullstack_test_production
-  username: pennylane_fullstack_test
+  username: pumpkin-pudding-94910
   password: <%= ENV["PENNYLANE_FULLSTACK_TEST_DATABASE_PASSWORD"] %>
