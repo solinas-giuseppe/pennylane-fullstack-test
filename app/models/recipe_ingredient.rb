@@ -42,7 +42,7 @@ class RecipeIngredient < ApplicationRecord
 
   def expand_attributes
     return if full_definition.blank? || self.persisted?
-    auto_attrs = RecipeIngredient.parse_definition(full_definition)
+    auto_attrs = RecipeIngredient.parse_definition(full_definition).stringify_keys
     ingredient_name = auto_attrs.delete("name")
     self.ingredient = Ingredient.find_or_initialize_by({name: ingredient_name}) if ingredient_name.present?
     assign_attributes(auto_attrs)
