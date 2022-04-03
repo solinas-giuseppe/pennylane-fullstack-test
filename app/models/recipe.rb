@@ -1,5 +1,6 @@
 class Recipe < ApplicationRecord
     validates :title, presence: true
+    has_many :filtered_recipe_ingredients, inverse_of: :recipe, autosave: true, class_name: 'RecipeIngredient'
     has_many :recipe_ingredients, inverse_of: :recipe, autosave: true
     has_many :ingredients, inverse_of: :recipes, through: :recipe_ingredients, autosave: true
     

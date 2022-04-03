@@ -60,6 +60,12 @@ const TimeEl = styled.div`
     }
 `
 
+const highlightText = (text, keywords) => {
+    if (keywords.length == 0) return text
+    const highlightRegex = new RegExp(`(${(keywords || []).join('|')})`)
+    return text.replace(highlightRegex,'<strong>$1</strong>')
+}
+
 const RecipeCard = ({
     id,
     title,
@@ -71,12 +77,14 @@ const RecipeCard = ({
     prep_time,
     image,
     ingredients,
+    keywords
 }) => {
+    
     return (
         <Card>
             <CardHeader>
                 <div>
-                    <img {...{lazy: true}} src={image} alt={title} />
+                    <img loading="lazy" src={image} alt={title} />
                 </div>
                 <DetailsWrapper>
                     {!!prep_time && <TimeEl title="Prep Time"><PrepIcon /> {prep_time} mins</TimeEl>}
@@ -98,7 +106,9 @@ const RecipeCard = ({
 
                 </CardBodyTop>
                 <ul>
-                    {ingredients.map((i, idx)=> <li key={idx}>{i}</li>)}
+                    {ingredients.map((i, idx)=> <li key={idx}>
+                        <span dangerouslySetInnerHTML={{__html: highlightText(i, keywords)}}></span>
+                    </li>)}
                 </ul>
             </CardBody>
             <CardFooter>

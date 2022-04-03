@@ -11,21 +11,17 @@ class RecipesController < ApplicationController
   end
 
   def search
-    @ingredient_ids = params[:ingredient_ids]
+    @ingredient_ids = params[:ingredient_ids].to_a
+    @recipe_ids = Recipe.joins(@ingredient_ids.length == 0 ? '' : @ingredient_ids.map do |id|
+      table_alias = SecureRandom.uuid
+      ActiveRecord::Base.send(:sanitize_sql_array, [%Q(
+        INNER JOIN recipe_ingredients t_#{id} ON t_#{id}.ingredient_id = ? AND t_#{id}.recipe_id = recipes.id
+      ), id])
+    end).limit(25).pluck(:id)
     @recipes = Recipe.includes(:recipe_ingredients)
-    .includes(*Recipe::TAG_CONTEXTS.map { |t| "#{t}_tag"})
-    .limit(30)
-    .where(recipe_ingredients: { ingredient_id: @ingredient_ids })
-    #  (@ingredient_ids.blank? ? Recipe.all : Recipe.joins(ActiveRecord::Base.send(:sanitize_sql_array, [%Q(
-    #   LEFT OUTER JOIN recipe_ingredients i
-    #     ON i.recipe_id = recipes.id
-    #     AND i.ingredient_id in (?)
-    # ), @ingredient_ids]) )).yield_self do |recipes|
-      # Recipe.includes(:recipe_ingredients)
-      #   .includes(*Recipe::TAG_CONTEXTS.map { |t| "#{t}_tag"})
-      #   .limit(30)
-      #   .where(recipe_ingredients: { ingredient_id: @ingredient_ids })
-    # end
+        .includes(*Recipe::TAG_CONTEXTS.map { |t| "#{t}_tag"})
+        .where(id: @recipe_ids)
+
     respond_to do |format|
       format.json { render :index }
     end

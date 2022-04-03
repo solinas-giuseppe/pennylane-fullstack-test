@@ -30,7 +30,6 @@ const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
 
     const searchIngredients = debounce((e) => {
         const search = e.target.value
-        console.log(search)
         axios.get('/ingredients/autocomplete.json', { params: {search } })
             .then( ({data}) => {
                 setResults(data)

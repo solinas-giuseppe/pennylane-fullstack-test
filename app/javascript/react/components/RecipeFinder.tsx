@@ -37,7 +37,6 @@ const RecipeFinder = () => {
     useEffect(() => {
         const ingredient_ids = selectedIngredients.map(({id}) => id)
         axios.get('/recipes/search.json', {params: {ingredient_ids}}).then(({data}) => {
-            console.log(data)
             setRecipes(data)
         })
     },[selectedIngredients])
@@ -58,7 +57,11 @@ const RecipeFinder = () => {
                 </RecipesHeader>
                 <RecipesListWrapper>
                     <RecipesList>
-                        {recipes.map((recipe) => <RecipeCard key={recipe.id} {...recipe}></RecipeCard>)}
+                        {recipes.map((recipe) => <RecipeCard
+                            key={recipe.id}
+                            {...recipe}
+                            keywords={selectedIngredients.map(({name}) => name)}
+                        />)}
                     </RecipesList>
                 </RecipesListWrapper>
             </div>

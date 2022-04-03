@@ -47,6 +47,7 @@ namespace :recipes do
                 Recipes : #{Recipe.count}
                 Ingredients : #{Ingredient.count}
                 RecipeIngredients : #{RecipeIngredient.count}
+                Tags : #{ActsAsTaggableOn::Tag.count}
             )
         end
   
