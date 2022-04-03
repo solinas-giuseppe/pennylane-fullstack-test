@@ -54,6 +54,8 @@ GEM
     activerecord (7.0.2.3)
       activemodel (= 7.0.2.3)
       activesupport (= 7.0.2.3)
+    activerecord-import (1.4.0)
+      activerecord (>= 4.2)
     activestorage (7.0.2.3)
       actionpack (= 7.0.2.3)
       activejob (= 7.0.2.3)
@@ -206,6 +208,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
+    yajl-ruby (1.4.1)
     zeitwerk (2.5.4)
 
 PLATFORMS
@@ -213,6 +216,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activerecord-import (~> 1.4)
   acts-as-taggable-on (~> 9.0, >= 9.0.1)
   bootsnap
   capybara
@@ -228,6 +232,7 @@ DEPENDENCIES
   tzinfo-data
   web-console
   webdrivers
+  yajl-ruby
 
 RUBY VERSION
    ruby 3.0.0p0

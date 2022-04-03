@@ -1,6 +1,6 @@
 class RecipeIngredient < ApplicationRecord
-  belongs_to :recipe
-  belongs_to :ingredient
+  belongs_to :recipe, inverse_of: :recipe_ingredients, autosave: true
+  belongs_to :ingredient, inverse_of: :recipe_ingredients, autosave: true
   after_initialize :expand_attributes
   AMOUNT_TOKENS = [
       'cup',
@@ -10,6 +10,8 @@ class RecipeIngredient < ApplicationRecord
       'can',
       'quart',
       'gram',
+      'ounce',
+      'pinch'
   ]
   .map {|c| "#{c}(?:s)?" }
   .freeze
@@ -32,6 +34,8 @@ class RecipeIngredient < ApplicationRecord
       {**t, unit: t['unit'].present? ? t['unit'].singularize : nil}
     end
   end
+
+  private
 
   def expand_attributes
     return if full_definition.blank?

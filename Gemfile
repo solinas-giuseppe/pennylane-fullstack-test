@@ -27,6 +27,12 @@ gem "jsbundling-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# A library for bulk inserting data using ActiveRecord.
+gem 'activerecord-import', '~> 1.4'
+
+# Ruby C bindings to the excellent Yajl JSON stream-based parser library.
+gem 'yajl-ruby', require: 'yajl'
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 
