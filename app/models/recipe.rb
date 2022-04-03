@@ -15,6 +15,10 @@ class Recipe < ApplicationRecord
         define_method "#{m}=" do |*args|
             self.send("#{m}_tag_list=", args.map(&:presence).compact)
         end
+
+        define_method "#{m}" do
+            self.send("#{m}_tag").map(&:name)
+        end
     end
 
     def assign_ingredients(ingredient_strings)
