@@ -2,7 +2,7 @@
   "name": "app",
   "private": "true",
   "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --outdir=app/assets/builds",
+    "build": "node config/esbuild.config.js",
     "start": "node config/esbuild.config.js"
   },
   "dependencies": {

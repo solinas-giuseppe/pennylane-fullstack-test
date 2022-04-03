@@ -29,7 +29,7 @@ require("esbuild").build({
   loader: { '.js': 'jsx' },
   // custom plugins will be inserted is this array
   plugins: [],
-  banner: {
+  banner: !watch ? {} : {
     js: ' (() => new EventSource("http://localhost:8082").onmessage = () => location.reload())();',
   },
 }).catch((err) => {
@@ -37,13 +37,16 @@ require("esbuild").build({
   process.exit(1)
 });
 
-http.createServer((req, res) => {
-  return clients.push(
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Access-Control-Allow-Origin": "*",
-      Connection: "keep-alive",
-    }),
-  );
-}).listen(8082);
+if (watch && watchOptions) {
+
+  http.createServer((req, res) => {
+    return clients.push(
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Access-Control-Allow-Origin": "*",
+        Connection: "keep-alive",
+      }),
+    );
+  }).listen(8082);
+}
