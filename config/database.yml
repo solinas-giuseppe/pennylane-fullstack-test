@@ -82,7 +82,4 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  <<: *default
-  database: pennylane_fullstack_test_production
-  username: pennylane-fullstack-test
-  password: <%= ENV["PENNYLANE_FULLSTACK_TEST_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
