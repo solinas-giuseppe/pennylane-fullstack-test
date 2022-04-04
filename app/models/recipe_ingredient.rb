@@ -15,7 +15,8 @@ class RecipeIngredient < ApplicationRecord
       'pinch',
       'clove',
       'pound',
-      'cube'
+      'cube',
+      'slice'
   ]
   .map {|c| "#{c}(?:s)?" }
   .freeze
