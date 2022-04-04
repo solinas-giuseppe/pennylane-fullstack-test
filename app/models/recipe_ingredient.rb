@@ -13,7 +13,9 @@ class RecipeIngredient < ApplicationRecord
       'gram',
       'ounce',
       'pinch',
-      'clove'
+      'clove',
+      'pound',
+      'cube'
   ]
   .map {|c| "#{c}(?:s)?" }
   .freeze

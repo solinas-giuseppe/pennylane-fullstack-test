@@ -7,8 +7,8 @@ import RecipeCard, { Card } from "./RecipeCard"
 
 const Wrapper = styled.div`
     display: grid;
-
     @media screen and (min-width: 768px) {
+        height: 100%;
         grid-template-columns: 1fr 3fr;
     }
 `
