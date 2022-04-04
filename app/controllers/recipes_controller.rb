@@ -13,7 +13,6 @@ class RecipesController < ApplicationController
   def search
     @ingredient_ids = params[:ingredient_ids].to_a
     @recipe_ids = Recipe.joins(@ingredient_ids.length == 0 ? '' : @ingredient_ids.map do |id|
-      table_alias = SecureRandom.uuid
       ActiveRecord::Base.send(:sanitize_sql_array, [%Q(
         INNER JOIN recipe_ingredients t_#{id} ON t_#{id}.ingredient_id = ? AND t_#{id}.recipe_id = recipes.id
       ), id])

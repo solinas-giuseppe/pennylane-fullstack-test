@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import styled from "styled-components"
 import Ingredient from "./finder/Ingredient"
 import SearchInterface from "./finder/SearchInterface"
-import RecipeCard from "./RecipeCard"
+import RecipeCard, { Card } from "./RecipeCard"
 
 const Wrapper = styled.div`
     display: grid;
@@ -29,12 +29,14 @@ const RecipesList = styled.div`
 
 const RecipeFinder = () => {
     const [selectedIngredients, setSelectedIngredients] = useState([])
+    const [keywords, setKeywords] = useState([])
     const [recipes, setRecipes] = useState([])
     const unSelectIngredients = (ingredient) => {
         setSelectedIngredients(selectedIngredients.filter(({id}) => String(id) != String(ingredient.id)))
     }
 
     useEffect(() => {
+        setKeywords(selectedIngredients.map(({name}) => name))
         const ingredient_ids = selectedIngredients.map(({id}) => id)
         axios.get('/recipes/search.json', {params: {ingredient_ids}}).then(({data}) => {
             setRecipes(data)
@@ -57,11 +59,15 @@ const RecipeFinder = () => {
                 </RecipesHeader>
                 <RecipesListWrapper>
                     <RecipesList>
-                        {recipes.map((recipe) => <RecipeCard
-                            key={recipe.id}
-                            {...recipe}
-                            keywords={selectedIngredients.map(({name}) => name)}
-                        />)}
+                        {(!recipes || recipes.length) == 0
+                            ?
+                            <Card>No recipes found {keywords.length > 0 && 'with'} {keywords.join(', ')}</Card>
+                            :
+                            recipes.map((recipe) => <RecipeCard
+                                key={recipe.id}
+                                {...recipe}
+                                keywords={keywords}
+                            />)}
                     </RecipesList>
                 </RecipesListWrapper>
             </div>

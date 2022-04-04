@@ -2,7 +2,7 @@ import styled from "styled-components"
 import StarRatings from 'react-star-ratings'
 import CookIcon from "./icons/CookIcon"
 import PrepIcon from "./icons/PrepIcon"
-const Card = styled.div`
+export const Card = styled.div`
     background-color: white;
     border-radius: .7rem;
     padding: 1.5rem;

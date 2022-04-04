@@ -28,10 +28,22 @@ class RecipeIngredientTest < ActiveSupport::TestCase
       "2 tablespoons hot water",
       "½ teaspoon almond extract",
       "1 (4 ounce) can diced green chile peppers, drained",
-      "1 10-inch banneton (proofing basket)"
+      "1 10-inch banneton (proofing basket)",
+      "½ cup (packed) dark brown sugar"
     ]
 
-    @attributes = @full_definitions.map { |d| RecipeIngredient.parse_definition(d) }
+    @attributes = @full_definitions.map { |d|
+      begin
+       RecipeIngredient.parse_definition(d)
+      rescue
+        puts "ERROR on '#{d}'" 
+      end
+    }
+  end
+
+  test "it detects variant in non-standard position" do
+    assert_equal "(packed)", @attributes.last["variant"]
+    assert_not_nil @attributes.last["name"]
   end
 
   test "it extracts digit amounts" do
@@ -65,7 +77,7 @@ class RecipeIngredientTest < ActiveSupport::TestCase
 
   test "it extracts units" do
     assert_equal "cup", @attributes[0]["unit"] 
-    assert_equal "packages", @attributes[3]["unit"] 
+    assert_equal "package", @attributes[3]["unit"] 
     assert_nil @attributes[7]["unit"] 
     assert_equal "teaspoon", @attributes[13]["unit"] 
   end
