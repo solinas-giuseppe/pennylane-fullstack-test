@@ -1,7 +1,30 @@
-require 'uri'
-require 'yajl/gzip'
-require 'yajl/deflate'
-require 'yajl/http_stream'
+require 'yajl'
+class RecipesBridge < ActiveRecord::Base
+end
+
+def createTemporaryTable
+    name = "recipes_import_#{Time.now.strftime "%d%m%Y_%H%M%S_%3N"}"
+    dropTemporaryTable(name)
+    ActiveRecord::Base.connection.execute <<-SQL
+        CREATE TABLE #{name} (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255),
+            cook_time INT,
+            prep_time INT,
+            ingredients VARCHAR ARRAY,
+            ratings NUMERIC,
+            cuisine VARCHAR(255),
+            category VARCHAR(255),
+            author VARCHAR(255),
+            image VARCHAR(255)
+        );
+    SQL
+    name
+end
+
+def dropTemporaryTable(name)
+    ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS #{name}")
+end
 
 namespace :recipes do
     desc "Import data"
@@ -13,80 +36,63 @@ namespace :recipes do
         json = File.open([Rails.root, 'public', 'recipes-en.json'].join('/'), 'r')
         parser = Yajl::Parser.new
         results = parser.parse(json)
+        RecipesBridge.table_name = createTemporaryTable
+        puts "# BRING DATA IN"
+        RecipesBridge.insert_all results
+        puts "# INSERT RECIPES"
+        recipe_columns = [:title, :cook_time, :prep_time, :ratings, :image]
+        Recipe.insert_all RecipesBridge.pluck(:id, *recipe_columns).map { |d| [:imported_id, *recipe_columns].zip(d).to_h}
+        
 
-        results.each_slice(1000) do |batch|
-            tags = []
-            batch.each do | element |
-                Recipe::TAG_CONTEXTS.map(&:to_s).each do |t|
-                    if element[t].present?
-                        tag = ActsAsTaggableOn::Tag.find_or_initialize_by(name: element[t])
-                        tags << tag if tag.new_record?
-                    end
-                end
-            end
-            ActsAsTaggableOn::Tag.import!(tags, ignore: true)
-            puts "Imported #{ActsAsTaggableOn::Tag.count} Tags"
-        end
+        puts '# CREATE RECIPE INGREDIENTS'
+        RecipeIngredient.insert_all RecipesBridge.joins(%Q(
+            INNER JOIN recipes ON recipes.imported_id = #{RecipesBridge.table_name}.id
+        )).pluck('recipes.id', :ingredients).map {|d| d[1].zip([*d[0]]*d[1].length).map { |q| [:full_definition, :recipe_id].zip(q).to_h}.flatten }.flatten       
+        
+        puts '# ANALYZE RECIPE INGREDIENTS'
+        RecipeIngredient.upsert_all RecipeIngredient.connection.execute(%Q(
+            SELECT
+                id,
+                TRIM(captures[1]) as amount,
+                TRIM(captures[2]) as unit,
+                TRIM(captures[3]) as name,
+                TRIM(captures[4]) as variant,
+                full_definition
+            FROM (
+            SELECT id, full_definition, regexp_match(full_definition, $$
+                (\\.?(?:(?:[¼-¾⅐-⅞]|\\d+?)(?:\\s+?)(?:\\(.*?\\))?)+)?
+                (?:\\s)?(#{RecipeIngredient::AMOUNT_TOKENS.join('|')})? (?:\\s)?([^\\,|$|\\r\\n|\\(]*)
+                (?:\\,\\s)?((?:\\()?[^\\,|\\r\\n\\)]+(?:\\)?))?
+                $$, 'x') captures FROM "recipe_ingredients"
+            ) recipe_ingredients
+        ))
+       
+        puts '# CREATE INGREDIENTS'
+        Ingredient.insert_all RecipeIngredient.distinct.pluck(:name).map { |d| [:name].zip([d]).to_h}
+        
+        puts '# LINK INGREDIENTS'
+        RecipeIngredient.connection.update(%Q(
+            UPDATE recipe_ingredients
+            SET ingredient_id = ingredients.id
+            FROM ingredients
+            WHERE recipe_ingredients.name = ingredients.name;
+        ))
 
-        results.each_slice(400) do |batch|
-            recipes = []
-            recipe_ingredients = []
-            ingredients = []
-            puts "New Batch of 400 records. #{Recipe.count} already in"
-            batch.each do | element |
-                Recipe.new(element.slice(
-                    "title",
-                    "cook_time",
-                    "prep_time",
-                    "ratings",
-                    "image",
-                )).yield_self do |recipe|
-                    Recipe::TAG_CONTEXTS.map(&:to_s).each do |t|
-                        if element[t].present?
-                            recipe.taggings.build(
-                                tag: ActsAsTaggableOn::Tag.find_by(name: element[t]),
-                                taggable: recipe,
-                                context: "#{t}_tag"
-                            )
-                        end
-                    end
-                    
-                    recipe_ingredients += element['ingredients'].uniq.map do |d|
-                        Ingredient.find_by_full_name(d).yield_self do |i|
-                            ingredients << i if i.present? and i.new_record?
-                            ri = RecipeIngredient.new({ full_definition: d, recipe: recipe, ingredient: i })
-                            # i.recipe_ingredients << ri
-                            ri
-                        end
-                    end
-                    recipes << recipe
-                end
-                print '.'
-            end
-            # ActsAsTaggableOn::Tag.has_many :taggings, inverse_of: :tag, autosave: true
-            # ActsAsTaggableOn::Tagging.belongs_to :tag, inverse_of: :taggings, autosave: true
-            # pp recipes
-            begin
-            
-            Recipe.import(recipes, recursive: true)
-            Ingredient.import(ingredients, recursive: true)
-            rescue => e
-                pp e.record
-                pp e.record.recipe_ingredients
-                pp e.record.recipe_ingredients.first.recipe
-                raise e
-            end
-            # RecipeIngredient.import!(recipe_ingredients, on_duplicate_key_update: [:ingredient_id, :recipe_id])
-            
-            # ActsAsTaggableOn::Tagging.import!(taggings, on_duplicate_key_update: [:tag_id, :taggable_type, :taggable_id], validate: true)
-            puts %Q(
-                Recipes : #{Recipe.count}
-                Ingredients : #{Ingredient.count}
-                RecipeIngredients : #{RecipeIngredient.count}
-                Taggings : #{ActsAsTaggableOn::Tagging.count}
-                Tags : #{ActsAsTaggableOn::Tag.count}
-            )
+        puts "# INSERT TAGS"
+        Recipe::TAG_CONTEXTS.each do |c|
+            puts "## TAG : #{c}"
+            ActsAsTaggableOn::Tag.insert_all RecipesBridge.distinct.pluck(c).map { |d| [:name].zip([d]).to_h}
+            puts "## TAG : #{c} - TAGGINGS"
+            ActsAsTaggableOn::Tagging.insert_all RecipesBridge.joins(%Q(
+                INNER JOIN tags ON tags.name = #{RecipesBridge.table_name}.#{c}
+                INNER JOIN recipes ON recipes.imported_id = #{RecipesBridge.table_name}.id
+            )).group('recipes.id', 'tags.id').pluck(
+                Arel.sql('tags.id'),
+                Arel.sql(%Q('Recipe')),
+                Arel.sql('recipes.id'),
+                Arel.sql(%Q('#{c}_tag'))
+            ).map { |d| [:tag_id, :taggable_type, :taggable_id, :context].zip(d).to_h}
         end
-  
+        dropTemporaryTable(name)
     end
 end

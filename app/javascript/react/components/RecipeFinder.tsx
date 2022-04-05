@@ -36,10 +36,15 @@ const RecipeFinder = () => {
     }
 
     useEffect(() => {
+        setSelectedIngredients(JSON.parse(sessionStorage.getItem('selectedIngredients')) || [])
+    }, [])
+
+    useEffect(() => {
         setKeywords(selectedIngredients.map(({name}) => name))
         const ingredient_ids = selectedIngredients.map(({id}) => id)
         axios.get('/recipes/search.json', {params: {ingredient_ids}}).then(({data}) => {
             setRecipes(data)
+            sessionStorage.setItem('selectedIngredients', JSON.stringify(selectedIngredients))
         })
     },[selectedIngredients])
 

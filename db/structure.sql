@@ -70,7 +70,8 @@ CREATE TABLE public.recipe_ingredients (
     unit character varying,
     full_definition character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    name character varying
 );
 
 
@@ -105,7 +106,8 @@ CREATE TABLE public.recipes (
     ratings double precision,
     image character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    imported_id integer
 );
 
 
@@ -440,6 +442,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220402152306'),
 ('20220402152307'),
 ('20220402152308'),
-('20220402152309');
+('20220402152309'),
+('20220405190257'),
+('20220405220342');
 
 

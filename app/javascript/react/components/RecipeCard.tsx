@@ -22,7 +22,20 @@ export const Card = styled.div`
 const CardHeader = styled.header`
     display: grid;
     gap: 1.5rem;
-
+    grid-auto-rows: min-content;
+    /* overflow: hidden; */
+    .image {
+        margin: -1.5rem -1.5rem 0;
+        border-top-left-radius: .7rem;
+        border-top-right-radius: .7rem;
+        overflow: hidden;
+        
+        @media screen and (min-width: 768px) {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            margin: 0;
+        }
+    }
     img {
         width: 100%;
         height: 22rem;
@@ -37,12 +50,20 @@ const CardBody = styled.div`
 
 const CardBodyTop = styled.div`
     display: grid;
-    grid-template-columns: 1fr 14rem;
+    grid-template-columns: 1fr 19rem;
     gap: 1.5rem;
+    > * { min-height: 0;min-width: 0; }
 `
 
 const CardFooter = styled.footer`
-
+    div {
+        display: inline-block;
+        padding-right: 1rem;
+        & + div {
+            padding-left: 1rem;
+            border-left: 1px solid;
+        }
+    }
 `
 const DetailsWrapper = styled.div`
     display: flex;
@@ -79,31 +100,37 @@ const RecipeCard = ({
     ingredients,
     keywords
 }) => {
+    const [authorName] = author
+    const [cuisineName] = cuisine
+    const [categoryName] = category
     
     return (
         <Card>
             <CardHeader>
-                <div>
+                <div className={"image"}>
                     <img loading="lazy" src={image} alt={title} />
                 </div>
-                <DetailsWrapper>
+                {(!!prep_time || !!cook_time) && <DetailsWrapper>
                     {!!prep_time && <TimeEl title="Prep Time"><PrepIcon /> {prep_time} mins</TimeEl>}
                     {!!cook_time && <TimeEl title="Cook Time"><CookIcon /> {cook_time} mins</TimeEl>}
-                </DetailsWrapper>
+                </DetailsWrapper>}
             </CardHeader>
             <CardBody className={'card-body'}>
                 <CardBodyTop>
                     <h3>{title}</h3>
                     <div>
-                        <StarRatings
-                            rating={ratings}
-                            starRatedColor="#dcda56"
-                            starDimension="2.5rem"
-                            starSpacing=".1rem"
-                        />
-                    </div>
-                    
+                        <span>
 
+                            <StarRatings
+                                rating={ratings}
+                                starRatedColor="#dcda56"
+                                starDimension="2.5rem"
+                                starSpacing=".1rem"
+                            />
+                        </span>
+                        &nbsp;
+                        ({ratings})
+                    </div>
                 </CardBodyTop>
                 <ul>
                     {ingredients.map((i, idx)=> <li key={idx}>
@@ -112,8 +139,8 @@ const RecipeCard = ({
                 </ul>
             </CardBody>
             <CardFooter>
-
-
+                {authorName && <div>By {authorName}</div>}
+                {[cuisineName, categoryName].filter(Boolean).map((detail, i) => <div key={i}>{detail}</div>)}
             </CardFooter>
         </Card>
     )

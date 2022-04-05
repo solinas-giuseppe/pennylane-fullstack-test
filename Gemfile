@@ -12,6 +12,9 @@ gem "sprockets-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
+# Kills postgres connections during db:reset so you don't have to restart your server. Fixes "database in use" errors.
+gem 'pgreset', '~> 0.3'
+
 # PgSearch builds Active Record named scopes that take advantage of PostgreSQL's full text search
 gem 'pg_search', '~> 2.3', '>= 2.3.6'
 
