@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useRef, useState } from "react"
 import styled from "styled-components"
 import AppContext from "../../contexts/AppContext"
 import Ingredient from "./Ingredient"
@@ -20,25 +20,30 @@ const Input = styled.input`
 
 const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
     const { startingIngredients } = useContext(AppContext)
+    const input = useRef(null)
     const [results, setResults] = useState([])
-    const addIngredient = (ingredient) => {
-        setSelectedIngredients([
-            ...selectedIngredients.filter(({id}) => id != ingredient.id),
-            ingredient
-        ])
-    }
 
-    const searchIngredients = debounce((e) => {
-        const search = e.target.value
+    const searchIngredients = debounce((search) => {
         axios.get('/ingredients/autocomplete.json', { params: {search } })
             .then( ({data}) => {
                 setResults(data)
             })
     }, 400)
 
+    const addIngredient = (ingredient) => {
+        setSelectedIngredients([
+            ...selectedIngredients.filter(({id}) => id != ingredient.id),
+            ingredient
+        ]).sort((a, b) => a.name > b.name)
+        if (!!input.current.value.length) {
+            input.current.value = ""
+            searchIngredients('')
+        }
+    }
+
     return (
         <Wrapper>
-            <Input type="text" placeholder="Search Ingredients!" onChange={ e => searchIngredients(e)}/>
+            <Input ref={input} type="text" placeholder="Search Ingredients!" onChange={ e => searchIngredients(e.target.value)}/>
             <IngredientsResults>
                 {(results.length > 0 ? results : startingIngredients).map( i => 
                     <Ingredient

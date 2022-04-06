@@ -17,7 +17,8 @@ class RecipeIngredient < ApplicationRecord
       'slice',
       'whole',
       'strip',
-      'sheet'
+      'sheet',
+      'pint'
   ]
   .map {|c| "#{c}(?:s)?" }
   .freeze
