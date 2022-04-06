@@ -18,9 +18,50 @@ class RecipeIngredient < ApplicationRecord
       'whole',
       'strip',
       'sheet',
-      'pint'
+      'pint',
+      'dash',
+      'half',
+      'stick',
+      'chip',
+      'loaf',
+      'drop',
+      'flake',
+      'bottle',
+      'piece',
+      'jar',
+      'ear',
+      'bunch'
   ]
-  .map {|c| "#{c}(?:s)?" }
+  .map {|c| "#{c}|#{c.pluralize}" }
   .freeze
+
+  QUALIFIER_TOKENS = [
+    'freshly',
+    'ground',
+    'extra(\s|\-)?lean',
+    'low(\s|\-)?sodium',
+    'lean',
+    'all-purpose',
+    'shredded',
+    'cooked',
+    'boneless',
+    'skinless',
+    'minced',
+    'grated',
+    'chopped',
+    'refrigerated',
+    'warm',
+    'to taste',
+    'classic',
+    'crushed',
+    'coarse(ly)?',
+    'large',
+    'packed',
+    'mild',
+    'flaked',
+    'fully',
+    'mashed',
+    'firmly'
+  ]
 
 end

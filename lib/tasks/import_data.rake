@@ -50,7 +50,7 @@ namespace :recipes do
         )).pluck('recipes.id', :ingredients).map {|d| d[1].zip([*d[0]]*d[1].length).map { |q| [:full_definition, :recipe_id].zip(q).to_h}.flatten }.flatten       
         
         puts '# ANALYZE RECIPE INGREDIENTS'
-        RecipeIngredient.upsert_all RecipeIngredient.connection.execute(%Q(
+        RecipeIngredient.upsert_all RecipeIngredient.connection.execute(%Q{
             SELECT
                 id,
                 TRIM(captures[1]) as amount,
@@ -59,13 +59,14 @@ namespace :recipes do
                 TRIM(captures[4]) as variant,
                 full_definition
             FROM (
-            SELECT id, full_definition, regexp_match(full_definition, $$
-                (\\.?(?:(?:[¼-¾⅐-⅞]|\\d+?)(?:\\s+?)(?:\\(.*?\\))?)+)?
-                (?:\\s)?(#{RecipeIngredient::AMOUNT_TOKENS.join('|')})? (?:\\s)?([^\\,|$|\\r\\n|\\(]*)
-                (?:\\,\\s)?((?:\\()?[^\\,|\\r\\n\\)]+(?:\\)?))?
+            SELECT id, full_definition, regexp_match(REGEXP_REPLACE( full_definition, '(\\W)#{RecipeIngredient::QUALIFIER_TOKENS.join('|')}(\\W)', '', 'g'  ), $$
+                (\\.?(?:(?:[¼-¾⅐-⅞]|\\d+?)(?:\\s+?)(?:\\([^\\)]*?\\))?)+)?
+                (?:\\s)?(#{RecipeIngredient::AMOUNT_TOKENS.join('|')})?
+                (?:\\s)?([^\\,|\:|$|\\(]*)
+                (?:\\,\\s|\\s\-\\s)?((?:\\()?[^\\,)]+(?:\\)?))?
                 $$, 'x') captures FROM "recipe_ingredients"
             ) recipe_ingredients
-        ))
+        })
        
         puts '# CREATE INGREDIENTS'
         Ingredient.insert_all RecipeIngredient.distinct.pluck(:name).map { |d| [:name].zip([d]).to_h}
@@ -93,6 +94,6 @@ namespace :recipes do
                 Arel.sql(%Q('#{c}_tag'))
             ).map { |d| [:tag_id, :taggable_type, :taggable_id, :context].zip(d).to_h}
         end
-        dropTemporaryTable(name)
+        dropTemporaryTable(RecipesBridge.table_name)
     end
 end

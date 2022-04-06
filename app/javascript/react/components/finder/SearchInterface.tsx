@@ -30,11 +30,12 @@ const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
             })
     }, 400)
 
-    const addIngredient = (ingredient) => {
+    const toggleIngredient = (ingredient) => {
+        const ingredientPresence = !!selectedIngredients.find(({id}) => id == ingredient.id)
         setSelectedIngredients([
-            ...selectedIngredients.filter(({id}) => id != ingredient.id),
-            ingredient
-        ]).sort((a, b) => a.name > b.name)
+            ...selectedIngredients.filter(({id}) => id != ingredient.id ),
+            (!ingredientPresence ? ingredient : null)
+        ].filter(Boolean).sort((a, b) => a.name > b.name ? 1 : -1))
         if (!!input.current.value.length) {
             input.current.value = ""
             searchIngredients('')
@@ -49,7 +50,7 @@ const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
                     <Ingredient
                         key={i.id}
                         selected={!!selectedIngredients.find( ({id}) => id == i.id )}
-                        onClick={addIngredient}
+                        onClick={toggleIngredient}
                         {...i}
                     />
                 )}

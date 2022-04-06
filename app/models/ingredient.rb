@@ -8,7 +8,7 @@ class Ingredient < ApplicationRecord
                 .joins(:recipe_ingredients)
                 .group(:id)
                 .reorder(%Q(COUNT(recipe_ingredients.id) DESC))
-                .limit(25)
+                .limit(50)
                 .pluck(:id, :name)
         end
     }
