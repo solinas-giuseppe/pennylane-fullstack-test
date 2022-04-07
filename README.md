@@ -5,20 +5,26 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version
+* Ruby version 
+
+3.0.0
 
 * System dependencies
 
-* Configuration
+postgres
 
 * Database creation
 
+`bundle exec rake db:create db:migrate`
+
 * Database initialization
+
+`bundle exec rake recipes:import`
 
 * How to run the test suite
 
-* Services (job queues, cache servers, search engines, etc.)
+`bundle exec rails test`
 
-* Deployment instructions
+* Run locally
 
-* ...
+`./bin/dev`
