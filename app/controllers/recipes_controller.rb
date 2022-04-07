@@ -12,13 +12,8 @@ class RecipesController < ApplicationController
 
   def search
     @searches = params[:searches].to_a
-    puts "============="
-    pp @searches
-    puts "============="
     @recipe_ids = Recipe.joins(@searches.length == 0 ? '' : @searches.each_with_index.map do |search, i|
-      %Q(
-        INNER JOIN (#{Ingredient.search_name(search).select(:recipe_id).to_sql}) t_#{i} ON t_#{i}.recipe_id = recipes.id
-      )
+      %Q( INNER JOIN (#{Ingredient.search_name(search).select(:recipe_id).to_sql}) t_#{i} ON t_#{i}.recipe_id = recipes.id )
     end).limit(25).select(:id)
     @recipes = Recipe.includes(:ingredients)
         .includes(*Recipe::TAG_CONTEXTS.map { |t| "#{t}_tag"})

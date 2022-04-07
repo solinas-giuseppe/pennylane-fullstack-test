@@ -2,6 +2,7 @@ import styled from "styled-components"
 import StarRatings from 'react-star-ratings'
 import CookIcon from "./icons/CookIcon"
 import PrepIcon from "./icons/PrepIcon"
+import HighlightedText from "./HighlightedText"
 export const Card = styled.div`
     background-color: white;
     border-radius: .7rem;
@@ -81,12 +82,6 @@ const TimeEl = styled.div`
     }
 `
 
-const highlightText = (text, keywords) => {
-    if (keywords.length == 0) return text
-    const highlightRegex = new RegExp(`(${(keywords || []).join('|')})`, 'i')
-    return text.replace(highlightRegex,'<strong>$1</strong>')
-}
-
 const RecipeCard = ({
     id,
     title,
@@ -133,7 +128,7 @@ const RecipeCard = ({
                 </CardBodyTop>
                 <ul>
                     {ingredients.map((i, idx)=> <li key={idx}>
-                        <span dangerouslySetInnerHTML={{__html: highlightText(i, keywords)}}></span>
+                        <HighlightedText text={i} keywords={keywords} />
                     </li>)}
                 </ul>
             </CardBody>

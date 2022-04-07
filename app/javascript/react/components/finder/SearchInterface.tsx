@@ -3,6 +3,7 @@ import { useRef, useState } from "react"
 import styled from "styled-components"
 import Ingredient from "./Ingredient"
 import debounce from 'lodash.debounce';
+import HighlightedText from "../HighlightedText";
 
 const Wrapper = styled.div`
     background-color: var(--light-green);
@@ -11,6 +12,10 @@ const Wrapper = styled.div`
 const IngredientsResults = styled.div`
     padding: 2rem 0;
     background-color: var(--light-green);
+    span {
+        line-height: 1;
+        border: 1px solid;
+    }
 `
 const Input = styled.input`
     padding: .5rem;
@@ -20,7 +25,7 @@ const Input = styled.input`
 const SearchInterface = ({keywords, setKeywords}) => {
     const input = useRef(null)
     const [results, setResults] = useState([])
-
+    const [currentSearch, setCurrentSearch] = useState(null)
 
     const toggleIngredient = (name) => {
         setKeywords([
@@ -28,13 +33,13 @@ const SearchInterface = ({keywords, setKeywords}) => {
                 ...[(!!!keywords.find( n => n == name) ? name: null)]
             ].filter(Boolean).sort()
         )
-
         input.current.value = ""
     }
 
     const searchIngredients = debounce((search) => {
         axios.get('/ingredients/autocomplete.json', { params: {search } })
             .then( ({data}) => {
+                setCurrentSearch(search)
                 setResults(data)
             })
     }, 400)
@@ -43,6 +48,7 @@ const SearchInterface = ({keywords, setKeywords}) => {
         if(e.key === 'Enter' && !!e.target.value) { 
             toggleIngredient(e.target.value)
             setResults([])
+            setCurrentSearch(null)
         }
     }
 
@@ -56,18 +62,14 @@ const SearchInterface = ({keywords, setKeywords}) => {
                 onChange={ e => searchIngredients(e.target.value)}
             />
             <IngredientsResults>
-                {(results.length > 0 ? results : []).map( i => 
-                    <Ingredient
-                        key={i.id}
-<<<<<<< HEAD
-                        selected={!!selectedIngredients.find( ({id}) => id == i.id )}
-=======
-                        selected={!!results.find( ({id}) => id == i.id )}
->>>>>>> remake
-                        onClick={toggleIngredient}
-                        {...i}
-                    />
-                )}
+                {!!currentSearch && <strong>{(results.length > 0 ? 'Press ENTER to add to recipe search' : `No results for keyword: ${currentSearch}`)}</strong>}
+                <ul>
+                    {(results.length > 0 ? results : []).map( i => 
+                        <li key={i.id}>
+                            <HighlightedText text={i.name} keywords={[currentSearch]} tagName="div"/>
+                        </li>
+                    )}
+                </ul>
             </IngredientsResults>
         </Wrapper>
     )
