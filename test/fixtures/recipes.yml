@@ -26,20 +26,20 @@ two:
   title: Fluffy Cake Doughnuts
   cook_time: 10
   prep_time: 20
-  ingredients:
-  - 2 cups all-purpose flour
-  - \"¾ cup white sugar\"
-  - 2 teaspoons baking powder
-  - \"¼ teaspoon ground nutmeg\"
-  - \"¼ teaspoon ground cinnamon\"
-  - 1 teaspoon salt
-  - \"¾ cup milk\"
-  - 2 eggs, beaten
-  - 1 teaspoon vanilla extract
-  - 1 tablespoon shortening
-  - 1 cup confectioners' sugar
-  - 2 tablespoons hot water
-  - \"½ teaspoon almond extract\"
+  # ingredients:
+  # - 2 cups all-purpose flour
+  # - \"¾ cup white sugar\"
+  # - 2 teaspoons baking powder
+  # - \"¼ teaspoon ground nutmeg\"
+  # - \"¼ teaspoon ground cinnamon\"
+  # - 1 teaspoon salt
+  # - \"¾ cup milk\"
+  # - 2 eggs, beaten
+  # - 1 teaspoon vanilla extract
+  # - 1 tablespoon shortening
+  # - 1 cup confectioners' sugar
+  # - 2 tablespoons hot water
+  # - \"½ teaspoon almond extract\"
   ratings: 3.98
   # cuisine: ''
   # category: Quick Bread

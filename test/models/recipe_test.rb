@@ -16,18 +16,6 @@ class RecipeTest < ActiveSupport::TestCase
       "⅓ cup vegetable oil",
     ]
     @recipe = recipes(:one)
-    puts "@recipe.ingredients.length #{@recipe.ingredients.length}"
-  end
-
-  test "it populates ingredients from a string array" do
-    @recipe.assign_attributes(ingredients: @ingredient_strings) 
-    assert_equal @ingredient_strings.length, @recipe.ingredients.length
-  end
-
-  test "it persists ingredients" do
-    @recipe.assign_ingredients(@ingredient_strings)
-    assert @recipe.save
-    assert_equal 8, Ingredient.count
   end
 
   test "it creates author with single argument" do

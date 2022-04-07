@@ -5,9 +5,6 @@ class Recipe < ApplicationRecord
 
     acts_as_taggable_on *TAG_CONTEXTS.map { |t| "#{t}_tag"}
 
-    # def ingredients=(ingredient_strings) # TODO: delete after imports
-    #     assign_ingredients(ingredient_strings)
-    # end
 
     TAG_CONTEXTS.each do |m|
         define_method "#{m}=" do |*args|
