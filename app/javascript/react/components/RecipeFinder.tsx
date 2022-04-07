@@ -28,37 +28,33 @@ const RecipesList = styled.div`
 `
 
 const RecipeFinder = () => {
-    const [selectedIngredients, setSelectedIngredients] = useState([])
-    const [keywords, setKeywords] = useState([])
+    const [keywords, setKeywords] = useState(JSON.parse(sessionStorage.getItem('keywords')) || [])
     const [recipes, setRecipes] = useState([])
-    const unSelectIngredients = (ingredient) => {
-        setSelectedIngredients(selectedIngredients.filter(({id}) => String(id) != String(ingredient.id)))
+    const unSelectKewords = (name) => {
+        setKeywords(keywords.filter((n) => String(n) != String(name)))
     }
 
-    useEffect(() => {
-        setSelectedIngredients(JSON.parse(sessionStorage.getItem('selectedIngredients')) || [])
-    }, [])
-
-    useEffect(() => {
-        setKeywords(selectedIngredients.map(({name}) => name))
-        const ingredient_ids = selectedIngredients.map(({id}) => id)
-        axios.get('/recipes/search.json', {params: {ingredient_ids}}).then(({data}) => {
+    const searchRecipes = (searches) => {
+        axios.get('/recipes/search.json', {params: {searches }}).then(({data}) => {
             setRecipes(data)
-            sessionStorage.setItem('selectedIngredients', JSON.stringify(selectedIngredients))
+            sessionStorage.setItem('keywords', JSON.stringify(keywords))
         })
-    },[selectedIngredients])
+    }
+
+    useEffect(() => { searchRecipes(keywords) }, [keywords])
 
     return (
         <Wrapper>
-            <SearchInterface {...{selectedIngredients, setSelectedIngredients}} />
+            <SearchInterface {...{keywords, setKeywords}} />
             <div>
                 <RecipesHeader>
-                    {!selectedIngredients.length ? 'Select Ingredients' : <>
-                        Selected Ingredients: {selectedIngredients.map((i) =>
+                    {!keywords.length ? 'Select Ingredients' : <>
+                        Selected Ingredients: {keywords.map((name, i) =>
                             <Ingredient
-                                key={i.id}
-                                onClick={unSelectIngredients}
-                                {...i}
+                                key={i}
+                                onClick={unSelectKewords}
+                                selected={true}
+                                name={name}
                             />)}
                     </>}
                 </RecipesHeader>

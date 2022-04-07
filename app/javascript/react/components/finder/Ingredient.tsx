@@ -11,13 +11,13 @@ const IngredientStyle = styled.a`
     }
 `
 
-const Ingredient = ({name, id, selected, onClick}) => {
+const Ingredient = ({name, selected, onClick}) => {
     return (
         <IngredientStyle
-            onClick={ () => onClick({name, id})}
+            onClick={ () => onClick(name)}
             className={selected ? 'selected' : ''}
         >
-            + {name}
+            - {name}
         </IngredientStyle>
     )
 }

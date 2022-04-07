@@ -11,15 +11,20 @@ class RecipesController < ApplicationController
   end
 
   def search
-    @ingredient_ids = params[:ingredient_ids].to_a
-    @recipe_ids = Recipe.joins(@ingredient_ids.length == 0 ? '' : @ingredient_ids.map do |id|
-      ActiveRecord::Base.send(:sanitize_sql_array, [%Q(
-        INNER JOIN recipe_ingredients t_#{id} ON t_#{id}.ingredient_id = ? AND t_#{id}.recipe_id = recipes.id
-      ), id])
-    end).limit(25).pluck(:id)
-    @recipes = Recipe.includes(:recipe_ingredients)
+    @searches = params[:searches].to_a
+    puts "============="
+    pp @searches
+    puts "============="
+    @recipe_ids = Recipe.joins(@searches.length == 0 ? '' : @searches.each_with_index.map do |search, i|
+      %Q(
+        INNER JOIN (#{Ingredient.search_name(search).select(:recipe_id).to_sql}) t_#{i} ON t_#{i}.recipe_id = recipes.id
+      )
+    end).limit(25).select(:id)
+    @recipes = Recipe.includes(:ingredients)
         .includes(*Recipe::TAG_CONTEXTS.map { |t| "#{t}_tag"})
         .where(id: @recipe_ids)
+        .page(params[:page])
+        .per(25)
 
     respond_to do |format|
       format.json { render :index }

@@ -32,6 +32,7 @@ CREATE TABLE public.ar_internal_metadata (
 CREATE TABLE public.ingredients (
     id bigint NOT NULL,
     name character varying,
+    recipe_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     searchable tsvector GENERATED ALWAYS AS (setweight(to_tsvector('english'::regconfig, (COALESCE(name, ''::character varying))::text), 'A'::"char")) STORED
@@ -55,43 +56,6 @@ CREATE SEQUENCE public.ingredients_id_seq
 --
 
 ALTER SEQUENCE public.ingredients_id_seq OWNED BY public.ingredients.id;
-
-
---
--- Name: recipe_ingredients; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.recipe_ingredients (
-    id bigint NOT NULL,
-    recipe_id bigint,
-    ingredient_id bigint,
-    amount character varying,
-    variant character varying,
-    unit character varying,
-    full_definition character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
-    name character varying
-);
-
-
---
--- Name: recipe_ingredients_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.recipe_ingredients_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: recipe_ingredients_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.recipe_ingredients_id_seq OWNED BY public.recipe_ingredients.id;
 
 
 --
@@ -215,13 +179,6 @@ ALTER TABLE ONLY public.ingredients ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
--- Name: recipe_ingredients id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_ingredients ALTER COLUMN id SET DEFAULT nextval('public.recipe_ingredients_id_seq'::regclass);
-
-
---
 -- Name: recipes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -259,14 +216,6 @@ ALTER TABLE ONLY public.ingredients
 
 
 --
--- Name: recipe_ingredients recipe_ingredients_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recipe_ingredients
-    ADD CONSTRAINT recipe_ingredients_pkey PRIMARY KEY (id);
-
-
---
 -- Name: recipes recipes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -299,31 +248,17 @@ ALTER TABLE ONLY public.tags
 
 
 --
+-- Name: index_ingredients_on_recipe_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ingredients_on_recipe_id ON public.ingredients USING btree (recipe_id);
+
+
+--
 -- Name: index_ingredients_on_searchable; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_ingredients_on_searchable ON public.ingredients USING gin (searchable);
-
-
---
--- Name: index_recipe_ingredients_on_ingredient_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_recipe_ingredients_on_ingredient_id ON public.recipe_ingredients USING btree (ingredient_id);
-
-
---
--- Name: index_recipe_ingredients_on_recipe_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_recipe_ingredients_on_recipe_id ON public.recipe_ingredients USING btree (recipe_id);
-
-
---
--- Name: index_recipe_ingredients_on_recipe_id_and_ingredient_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_recipe_ingredients_on_recipe_id_and_ingredient_id ON public.recipe_ingredients USING btree (recipe_id, ingredient_id);
 
 
 --
@@ -434,7 +369,6 @@ SET search_path TO "$user", public;
 INSERT INTO "schema_migrations" (version) VALUES
 ('20220401225840'),
 ('20220401230754'),
-('20220401233429'),
 ('20220402145746'),
 ('20220402152303'),
 ('20220402152304'),
@@ -443,7 +377,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20220402152307'),
 ('20220402152308'),
 ('20220402152309'),
-('20220405190257'),
-('20220405220342');
+('20220405190257');
 
 

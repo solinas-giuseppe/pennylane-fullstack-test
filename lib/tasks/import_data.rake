@@ -44,41 +44,11 @@ namespace :recipes do
         Recipe.insert_all RecipesBridge.pluck(:id, *recipe_columns).map { |d| [:imported_id, *recipe_columns].zip(d).to_h}
         
 
-        puts '# CREATE RECIPE INGREDIENTS'
-        RecipeIngredient.insert_all RecipesBridge.joins(%Q(
-            INNER JOIN recipes ON recipes.imported_id = #{RecipesBridge.table_name}.id
-        )).pluck('recipes.id', :ingredients).map {|d| d[1].zip([*d[0]]*d[1].length).map { |q| [:full_definition, :recipe_id].zip(q).to_h}.flatten }.flatten       
-        
-        puts '# ANALYZE RECIPE INGREDIENTS'
-        RecipeIngredient.upsert_all RecipeIngredient.connection.execute(%Q{
-            SELECT
-                id,
-                TRIM(captures[1]) as amount,
-                TRIM(captures[2]) as unit,
-                TRIM(captures[3]) as name,
-                TRIM(captures[4]) as variant,
-                full_definition
-            FROM (
-            SELECT id, full_definition, regexp_match(REGEXP_REPLACE( full_definition, '(\\W)#{RecipeIngredient::QUALIFIER_TOKENS.join('|')}(\\W)', '', 'g'  ), $$
-                (\\.?(?:(?:[¼-¾⅐-⅞]|\\d+?)(?:\\s+?)(?:\\([^\\)]*?\\))?)+)?
-                (?:\\s)?(#{RecipeIngredient::AMOUNT_TOKENS.join('|')})?
-                (?:\\s)?([^\\,|\:|$|\\(]*)
-                (?:\\,\\s|\\s\-\\s)?((?:\\()?[^\\,)]+(?:\\)?))?
-                $$, 'x') captures FROM "recipe_ingredients"
-            ) recipe_ingredients
-        })
-       
         puts '# CREATE INGREDIENTS'
-        Ingredient.insert_all RecipeIngredient.distinct.pluck(:name).map { |d| [:name].zip([d]).to_h}
+        Ingredient.insert_all RecipesBridge.joins(%Q(
+            INNER JOIN recipes ON recipes.imported_id = #{RecipesBridge.table_name}.id
+        )).pluck('recipes.id', :ingredients).map {|d| d[1].zip([*d[0]]*d[1].length).map { |q| [:name, :recipe_id].zip(q).to_h}.flatten }.flatten       
         
-        puts '# LINK INGREDIENTS'
-        RecipeIngredient.connection.update(%Q(
-            UPDATE recipe_ingredients
-            SET ingredient_id = ingredients.id
-            FROM ingredients
-            WHERE recipe_ingredients.name = ingredients.name;
-        ))
-
         puts "# INSERT TAGS"
         Recipe::TAG_CONTEXTS.each do |c|
             puts "## TAG : #{c}"

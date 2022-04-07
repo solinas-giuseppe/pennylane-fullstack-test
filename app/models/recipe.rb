@@ -1,7 +1,6 @@
 class Recipe < ApplicationRecord
     validates :title, presence: true
-    has_many :recipe_ingredients, inverse_of: :recipe, autosave: true
-    has_many :ingredients, inverse_of: :recipes, through: :recipe_ingredients, autosave: true
+    has_many :ingredients, inverse_of: :recipe, autosave: true
     TAG_CONTEXTS = [:cuisine, :category, :author].freeze
 
     acts_as_taggable_on *TAG_CONTEXTS.map { |t| "#{t}_tag"}
@@ -18,12 +17,6 @@ class Recipe < ApplicationRecord
 
         define_method "#{m}" do
             self.send("#{m}_tag").map(&:name)
-        end
-    end
-
-    def assign_ingredients(ingredient_strings)
-        ingredient_strings.each do |i|
-            self.recipe_ingredients << RecipeIngredient.new({full_definition: i})
         end
     end
 end
