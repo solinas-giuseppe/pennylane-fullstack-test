@@ -83,7 +83,7 @@ const TimeEl = styled.div`
 
 const highlightText = (text, keywords) => {
     if (keywords.length == 0) return text
-    const highlightRegex = new RegExp(`(${(keywords || []).join('|')})`)
+    const highlightRegex = new RegExp(`(${(keywords || []).join('|')})`, 'i')
     return text.replace(highlightRegex,'<strong>$1</strong>')
 }
 
@@ -120,7 +120,6 @@ const RecipeCard = ({
                     <h3>{title}</h3>
                     <div>
                         <span>
-
                             <StarRatings
                                 rating={ratings}
                                 starRatedColor="#dcda56"

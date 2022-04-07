@@ -1,9 +1,8 @@
-import { useContext, useRef, useState } from "react"
+import axios from "axios"
+import { useRef, useState } from "react"
 import styled from "styled-components"
-import AppContext from "../../contexts/AppContext"
 import Ingredient from "./Ingredient"
 import debounce from 'lodash.debounce';
-import axios from "axios";
 
 const Wrapper = styled.div`
     background-color: var(--light-green);
@@ -18,10 +17,20 @@ const Input = styled.input`
     border-radius: .3rem;
 `
 
-const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
-    const { startingIngredients } = useContext(AppContext)
+const SearchInterface = ({keywords, setKeywords}) => {
     const input = useRef(null)
     const [results, setResults] = useState([])
+
+
+    const toggleIngredient = (name) => {
+        setKeywords([
+                ...keywords.filter( n => n != name ), 
+                ...[(!!!keywords.find( n => n == name) ? name: null)]
+            ].filter(Boolean).sort()
+        )
+
+        input.current.value = ""
+    }
 
     const searchIngredients = debounce((search) => {
         axios.get('/ingredients/autocomplete.json', { params: {search } })
@@ -30,26 +39,28 @@ const SearchInterface = ({selectedIngredients, setSelectedIngredients}) => {
             })
     }, 400)
 
-    const addIngredient = (ingredient) => {
-        setSelectedIngredients([
-            ...selectedIngredients.filter(({id}) => id != ingredient.id),
-            ingredient
-        ]).sort((a, b) => a.name > b.name)
-        if (!!input.current.value.length) {
-            input.current.value = ""
-            searchIngredients('')
+    const handlePress = e => {
+        if(e.key === 'Enter' && !!e.target.value) { 
+            toggleIngredient(e.target.value)
+            setResults([])
         }
     }
 
     return (
         <Wrapper>
-            <Input ref={input} type="text" placeholder="Search Ingredients!" onChange={ e => searchIngredients(e.target.value)}/>
+            <Input
+                ref={input}
+                type="text"
+                placeholder="Search Ingredients!"
+                onKeyPress={handlePress}
+                onChange={ e => searchIngredients(e.target.value)}
+            />
             <IngredientsResults>
-                {(results.length > 0 ? results : startingIngredients).map( i => 
+                {(results.length > 0 ? results : []).map( i => 
                     <Ingredient
                         key={i.id}
-                        selected={!!selectedIngredients.find( ({id}) => id == i.id )}
-                        onClick={addIngredient}
+                        selected={!!results.find( ({id}) => id == i.id )}
+                        onClick={toggleIngredient}
                         {...i}
                     />
                 )}

@@ -1,6 +1,5 @@
 import Layout from "./layout/Layout"
 import RecipeFinder from "./components/RecipeFinder"
-import AppContext from "./contexts/AppContext"
 import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyle = createGlobalStyle`
@@ -40,12 +39,10 @@ const GlobalStyle = createGlobalStyle`
 
 const App = ({ingredients}) => {
     return (
-        <AppContext.Provider value={{startingIngredients: ingredients}}>
-            <Layout>
-                <GlobalStyle />
-                <RecipeFinder></RecipeFinder>
-            </Layout>
-        </AppContext.Provider>
+        <Layout>
+            <GlobalStyle />
+            <RecipeFinder></RecipeFinder>
+        </Layout>
     )
 }
 

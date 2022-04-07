@@ -8,6 +8,6 @@ json.extract! recipe, *[
     *Recipe::TAG_CONTEXTS,
 ]
 json.ingredients do
-    json.array! recipe.recipe_ingredients.map(&:full_definition)
+    json.array! recipe.ingredients.map(&:name)
 end
 json.url recipe_url(recipe, format: :json)
